@@ -5,7 +5,9 @@ using CarvedRock.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics; 
-using System.IdentityModel.Tokens.Jwt; 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.IdentityModel.Tokens.Jwt;
+
 
 
 var builder = WebApplication.CreateBuilder(args); 
@@ -18,7 +20,7 @@ builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {
         options.Authority = authority; 
-        options.TokenValidationParaeters = new TokenValidationParameters
+        options.TokenValidationParameters = new TokenValidationParameters
         {
             NameClaimType = "email",
             //RoleClaimType = "role",
@@ -38,6 +40,14 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<LocalContext>();
     context.MigrateAndCreateData();
 }
+
+builder.Services.AddControllers(); 
+builder.Services.AddEndpointsApiExplorer(); 
+builder.Services.AddSwaggerGen(); 
+
+
+
+
 
 app.MapGet("/products", async (ICarvedRockRepository repository) =>
     await repository.GetProductsAsync("all"));
