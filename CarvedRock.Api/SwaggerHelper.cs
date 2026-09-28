@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
-// using Microsoft.OpenApi.Models; 
+using Microsoft.OpenApi.Models; 
 namespace CarvedRock.Api;
 
 public class SwaggerOptions(IConfiguration config) : IConfigureOptions<SwaggerGenOptions>
