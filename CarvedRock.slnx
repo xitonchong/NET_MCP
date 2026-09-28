@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="CarvedRock.Api/CarvedRock.Api.csproj" />
+  <Project Path="CarvedRock.Data/CarvedRock.Data.csproj" />
+</Solution>
