@@ -1,5 +1,6 @@
 
 using CarvedRock.Api; 
+using CarvedRock.Core; 
 
 using CarvedRock.Data; 
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics; 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authentication;
 
 
 
@@ -27,6 +29,10 @@ builder.Services.AddAuthentication("Bearer")
             ValidateAudience = false
         };
     }); 
+
+builder.Services.AddTransient<IClaimsTransformation, AdminClaimsTransformation>(); 
+
+
 
 builder.Services.AddDbContext<LocalContext>(options => 
     options.UseNpgsql(builder.Configuration.GetConnectionString("CarvedRock"))); 

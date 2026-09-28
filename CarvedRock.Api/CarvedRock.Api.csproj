@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CarvedRock.Data\CarvedRock.Data.csproj" />
+    <ProjectReference Include="..\CarvedRock.Core\CarvedRock.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
