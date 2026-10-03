@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
+namespace CarvedRock.Api.Controllers; 
 
 [ApiController]
 [Route("[controller]")]
@@ -34,5 +35,64 @@ public partial class ProductController(
         }; 
         logger.LogWarning("No product found for ID: {id}", id); 
         return NotFound(); 
-    }    
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "admin")]
+    // [SwaggerOperation("Creates a single product")]
+    [ProducesResponseType<ProductModel>(StatusCodes.Status201Created)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateProduct([FromBody] NewProductModel newProduct)
+    {
+        var validationResult = await validator.ValidateAsync(newProduct); 
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.CreateValidationProblemDetails(HttpContext)); 
+        }
+
+        var createdProduct = await productLogic.CreateProductAsync(newProduct); 
+        var uri = Request.Path.Value + $"/{createdProduct.Id}"; 
+        return Created(uri, createdProduct); 
+    }
+
+    [HttpPut("{id:int}")]
+    // [Authorize(Roles = "admin")]
+    // [SwaggerOperation("Update a single product.")]
+    // [ProducesReponseType<ProductModel>(StatusCodes.Status200OK)] 
+    public async Task<IActionResult> UpdateProduct(int id, [FromBody] NewProductModel updatedProduct)
+    {
+        try
+        {
+            var validationResult = await validator.ValidateAsync(updatedProduct);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.CreateValidationProblemDetails(HttpContext)); 
+            }
+            var result = await productLogic.UpdateProductAsync(id, updatedProduct); 
+            return Ok(result); 
+        }
+        catch (KeyNotFoundException ex)
+        {
+            logger.LogWarning(ex, "Product not found for update: {id}", id); 
+            return NotFound(); 
+        }
+    }
+
+
+    [HttpDelete("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteProduct(int id)
+    {
+        try
+        {
+            await productLogic.DeleteProductAsync(id); 
+            return NoContent(); 
+        }
+        catch (KeyNotFoundException ex)
+        {
+            logger.LogWarning(ex, "Product not found for deletion: {id}", id); 
+            return NotFound(); 
+        }
+    }
 }
