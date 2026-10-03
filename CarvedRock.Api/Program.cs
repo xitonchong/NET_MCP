@@ -9,6 +9,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication;
+using CarvedRock.Domain;
 
 
 
@@ -31,7 +32,8 @@ builder.Services.AddAuthentication("Bearer")
     }); 
 
 builder.Services.AddTransient<IClaimsTransformation, AdminClaimsTransformation>(); 
-
+builder.Services.AddScoped<IProductLogic, ProductLogic>();
+builder.Services.AddScoped<NewProductValidator>(); 
 
 
 builder.Services.AddDbContext<LocalContext>(options => 
@@ -51,12 +53,15 @@ using (var scope = app.Services.CreateScope())
     context.MigrateAndCreateData();
 }
 
+app.MapControllers(); 
+
+
 app.UseSwagger(); 
 app.UseSwaggerUI(); 
 
 
 
-app.MapGet("/products", async (ICarvedRockRepository repository) =>
-    await repository.GetProductsAsync("all"));
+// app.MapGet("/products", async (ICarvedRockRepository repository) =>
+//     await repository.GetProductsAsync("all"));
 
 app.Run();

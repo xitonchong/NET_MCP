@@ -1,0 +1,16 @@
+﻿using CarvedRock.Core; 
+using CarvedRock.Data.Entities; 
+
+
+namespace CarvedRock.Domain;
+
+
+public interface IProductLogic
+{
+    Task<IEnumerable<Product>> GetProductsForCategoryAsync(string category); 
+    Task<Product?> GetProductIdAsync(int id); 
+    Task<ProductModel> CreateProductAsync(NewProductModel newProduct);
+    Task<ProductModel> UpdateProductAsync(int id, NewProductModel updatedProduct); 
+    Task DeleteProductAsync(int id);  
+
+}
