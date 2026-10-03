@@ -39,6 +39,10 @@ builder.Services.AddDbContext<LocalContext>(options =>
 
 builder.Services.AddScoped<ICarvedRockRepository, CarvedRockRepository>(); 
 
+builder.Services.AddControllers(); 
+builder.Services.AddEndpointsApiExplorer(); 
+builder.Services.AddSwaggerGen(); 
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -47,11 +51,8 @@ using (var scope = app.Services.CreateScope())
     context.MigrateAndCreateData();
 }
 
-builder.Services.AddControllers(); 
-builder.Services.AddEndpointsApiExplorer(); 
-builder.Services.AddSwaggerGen(); 
-
-
+app.UseSwagger(); 
+app.UseSwaggerUI(); 
 
 
 
