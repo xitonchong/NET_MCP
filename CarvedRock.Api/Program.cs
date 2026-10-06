@@ -3,18 +3,19 @@ using CarvedRock.Api;
 using CarvedRock.Core; 
 
 using CarvedRock.Data; 
+using CarvedRock.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics; 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication;
-using CarvedRock.Domain;
 
 
+using Microsoft.Extensions.Hosting; 
 
 var builder = WebApplication.CreateBuilder(args); 
-
+builder.AddServiceDefaults(); 
 
 var authority = builder.Configuration.GetValue<string>("Auth:Authority"); 
 JwtSecurityTokenHandler.DefaultMapInboundClaims = false;  
