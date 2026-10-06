@@ -107,4 +107,24 @@ public static class Extensions
         
         return builder; 
     }
+
+    public static WebApplication MapDefaultEndpoints(this WebApplication app)
+    {
+        var healthChecks = app.MapGroup("");
+
+        healthChecks
+            .CacheOutput("HealthChecks")
+            .WithRequestTimeout("HealthChecks");
+
+        healthChecks.MapHealthChecks("/health");
+        healthChecks.MapHealthChecks("/alive", new()
+        {
+            Predicate = static registration => registration.Tags.Contains("live")
+        });
+
+        app.UseRequestTimeouts();
+        app.UseOutputCache();
+
+        return app;
+    }
 }

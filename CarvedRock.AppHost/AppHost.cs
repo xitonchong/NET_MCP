@@ -24,6 +24,11 @@ builder.AddProject<Projects.CarvedRock_WebApp>("webapp")
     .WaitFor(api);
     // .WithHttpHealthCheck("/health"); 
 
+builder.AddProject<Projects.CarvedRock_Mcp>("mcp")
+    .WithReference(api)
+    .WaitFor(api)
+    .WithHttpHealthCheck("/health");
+
 
 
 builder.Build().Run();

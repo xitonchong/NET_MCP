@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CarvedRock.Api\CarvedRock.Api.csproj" />
+    <ProjectReference Include="..\CarvedRock.Mcp\CarvedRock.Mcp.csproj" />
     <ProjectReference Include="..\CarvedRock.WebApp\CarvedRock.WebApp.csproj" />
   </ItemGroup>
 

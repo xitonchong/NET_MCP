@@ -1,6 +1,22 @@
+using CarvedRock.Mcp;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
+
+builder.Services.AddMcpServer()
+    .WithHttpTransport()
+    .WithTools<CarvedRockTools>()
+    .WithTools<AdminTools>();
+
+builder.Services.AddHttpClient("CarvedRockApi", client =>
+{
+    client.BaseAddress = new Uri("https://api");
+});
+
 var app = builder.Build();
 
-app.MapGet("/", () => "Hello World!");
+app.MapDefaultEndpoints();
+app.MapMcp();
 
 app.Run();
