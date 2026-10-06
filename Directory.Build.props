@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <!-- Never treat generated build output as source content. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);bin/**;obj/**;**/bin/**;**/obj/**</DefaultItemExcludes>
+  </PropertyGroup>
+</Project>

@@ -24,13 +24,17 @@ builder.AddProject<Projects.CarvedRock_WebApp>("webapp")
     .WaitFor(api);
     // .WithHttpHealthCheck("/health"); 
 
-builder.AddProject<Projects.CarvedRock_Mcp>("mcp")
+var mcp = builder.AddProject<Projects.CarvedRock_Mcp>("mcp")
     .WithReference(api)
     .WaitFor(api)
     .WithHttpHealthCheck("/health");
 
+builder.AddMcpInspector("mcp-inspector", options =>
+{
+    options.InspectorVersion = "1.0.2";
+})
+    .WithMcpServer(mcp, path: ""); 
 
 
 builder.Build().Run();
-
 

@@ -15,3 +15,12 @@ dotnet add CarvedRock.AppHost/CarvedRock.AppHost.csproj reference CarvedRock.Api
 
 
 dotnet add CarvedRock.AppHost/CarvedRock.AppHost.csproj package CommunityToolkit.Aspire.Hosting.MailPit
+
+
+
+
+
+aspire add communitytoolkit-mcpinspector \
+  --apphost CarvedRock.AppHost/CarvedRock.AppHost.csproj \
+  --version 13.6.0 \
+  --non-interactive

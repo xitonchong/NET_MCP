@@ -12,7 +12,7 @@ builder.Services.AddMcpServer()
 builder.Services.AddHttpClient("CarvedRockApi", client =>
 {
     client.BaseAddress = new Uri("https://api");
-});
+}).AddServiceDiscovery();
 
 var app = builder.Build();
 
