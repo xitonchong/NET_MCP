@@ -24,17 +24,32 @@ builder.AddProject<Projects.CarvedRock_WebApp>("webapp")
     .WaitFor(api);
     // .WithHttpHealthCheck("/health"); 
 
-var mcp = builder.AddProject<Projects.CarvedRock_Mcp>("mcp")
-    .WithReference(api)
-    .WaitFor(api)
+var mcp = builder.AddProject<Projects.CarvedRock_Mcp>("mcp");
+var auth = builder.AddProject<Projects.CarvedRock_Auth>("auth")
+    .WithEnvironment("McpServerUrl", mcp.GetEndpoint("https"))
     .WithHttpHealthCheck("/health");
+
+api.WithEnvironment("Auth__Authority", auth.GetEndpoint("https"))
+    .WaitFor(auth);
+
+mcp
+    .WithReference(api)
+    .WithEnvironment(
+        "Auth__Authority",
+        auth.GetEndpoint("https"))
+    .WithEnvironment(
+        "McpServerUrl",
+        mcp.GetEndpoint("https"))
+    .WaitFor(api)
+    .WaitFor(auth)
+    .WithHttpHealthCheck("/health");
+
 
 builder.AddMcpInspector("mcp-inspector", options =>
 {
     options.InspectorVersion = "1.0.2";
 })
-    .WithMcpServer(mcp, path: ""); 
+    .WithMcpServer(mcp, path: "");
 
 
 builder.Build().Run();
-

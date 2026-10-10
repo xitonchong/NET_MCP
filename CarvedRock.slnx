@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="CarvedRock.Auth/CarvedRock.Auth.csproj" />
   <Project Path="CarvedRock-Aspire.ServiceDefaults/CarvedRock-Aspire.ServiceDefaults.csproj" />
   <Project Path="CarvedRock.Api/CarvedRock.Api.csproj" />
   <Project Path="CarvedRock.AppHost/CarvedRock.AppHost.csproj" />
