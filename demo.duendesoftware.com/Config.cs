@@ -4,6 +4,26 @@ namespace Duende.IdentityServer.Demo
 {
     public class Config
     {
+        private static string _mcpServerUrl = null!;
+        private static string _webAppUrl = null!;
+        private static string _webAppClientSecret = null!;
+
+        public static void Configure(
+            string mcpServerUrl,
+            string webAppUrl,
+            string webAppClientSecret)
+        {
+            if (!Uri.TryCreate(mcpServerUrl, UriKind.Absolute, out _) ||
+                !Uri.TryCreate(webAppUrl, UriKind.Absolute, out _) ||
+                string.IsNullOrWhiteSpace(webAppClientSecret))
+            {
+                throw new ArgumentException("Valid MCP and WebApp URLs and a WebApp client secret are required.");
+            }
+
+            _mcpServerUrl = mcpServerUrl.TrimEnd('/') + "/";
+            _webAppUrl = webAppUrl.TrimEnd('/');
+            _webAppClientSecret = webAppClientSecret;
+        }
         private static List<string> AllIdentityScopes =>
             IdentityResources.Select(s => s.Name).ToList();
 
@@ -61,9 +81,8 @@ namespace Duende.IdentityServer.Demo
                     Scopes = { "api" }
                 },
 
-                new ApiResource("http://localhost:5241/", "Local MCP Server", new[] { "name", "email" })
+                new ApiResource(_mcpServerUrl, "CarvedRock MCP", new[] { "name", "email" })
                 {
-                    ApiSecrets = { new Secret("secret".Sha256()) },
                     Scopes = { "api" }
                 },
 
@@ -173,29 +192,32 @@ namespace Duende.IdentityServer.Demo
                 // interactive
                 new Client
                 {
-                    ClientId = "interactive.confidential",
-                    ClientName = "Interactive client (Code with PKCE)",
-
-                    RedirectUris = { "https://notused" },
-                    PostLogoutRedirectUris = { "https://notused" },
-
-                    ClientSecrets = { new Secret("secret".Sha256()) },
-
-                    AllowedGrantTypes = GrantTypes.CodeAndClientCredentials,
-                    AllowedScopes = AllScopes,
-
-                    AllowOfflineAccess = true,
-                    RefreshTokenUsage = TokenUsage.ReUse,
-                    RefreshTokenExpiration = TokenExpiration.Sliding
+                    ClientId = "interactive.public",
+                    ClientName = "MCP Inspector",
+                    RequireClientSecret = false,
+                    AllowedGrantTypes = GrantTypes.Code,
+                    RequirePkce = true,
+                    RequireConsent = false,
+                    RedirectUris =
+                    {
+                        "http://localhost:6274/oauth/callback",
+                        "http://localhost:6274/oauth/callback/debug"
+                    },
+                    AllowedCorsOrigins = { "http://localhost:6274" },
+                    AllowedScopes = { "openid", "profile", "email", "api" },
+                    AllowOfflineAccess = true
                 },
 
                 new Client
                 {
-                    // Resource Owner Password grant for testing only - not for production or real use cases
-                    ClientId = "testing.confidential",
-                    ClientName = "Client for use in Testing Different Tokens",
-                    AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-                    ClientSecrets = { new Secret("secret".Sha256()) },
+                    ClientId = "interactive.confidential",
+                    ClientName = "CarvedRock WebApp",
+                    ClientSecrets = { new Secret(_webAppClientSecret.Sha256()) },
+                    AllowedGrantTypes = GrantTypes.Code,
+                    RequirePkce = true,
+                    RequireConsent = false,
+                    RedirectUris = { $"{_webAppUrl}/signin-oidc" },
+                    PostLogoutRedirectUris = { $"{_webAppUrl}/signout-callback-oidc" },
                     AllowedScopes = { "openid", "profile", "email", "api" },
                     AllowOfflineAccess = true
                 },
@@ -301,24 +323,6 @@ namespace Duende.IdentityServer.Demo
                     RefreshTokenExpiration = TokenExpiration.Sliding,
                     
                     AccessTokenLifetime = 75
-                },
-
-                new Client
-                {
-                    ClientId = "interactive.public",
-                    ClientName = "Interactive client (Code with PKCE)",
-
-                    RedirectUris = { "https://notused" },
-                    PostLogoutRedirectUris = { "https://notused" },
-
-                    RequireClientSecret = false,
-
-                    AllowedGrantTypes = GrantTypes.Code,
-                    AllowedScopes = AllScopes,
-
-                    AllowOfflineAccess = true,
-                    RefreshTokenUsage = TokenUsage.OneTimeOnly,
-                    RefreshTokenExpiration = TokenExpiration.Sliding
                 },
 
                 new Client

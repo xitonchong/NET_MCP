@@ -1,6 +1,4 @@
 using Duende.AspNetCore.Authentication.JwtBearer.DPoP;
-using Duende.IdentityServer.Services;
-using Duende.IdentityServer.Validation;
 using IdentityServerHost;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -11,6 +9,14 @@ internal static class HostingExtensions
 {
     public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
     {
+        Config.Configure(
+            builder.Configuration["McpServerUrl"]
+                ?? throw new InvalidOperationException("McpServerUrl is missing."),
+            builder.Configuration["WebAppUrl"]
+                ?? throw new InvalidOperationException("WebAppUrl is missing."),
+            builder.Configuration["WebAppClientSecret"]
+                ?? throw new InvalidOperationException("WebAppClientSecret is missing."));
+
         builder.Services.AddRazorPages();
         builder.Services.AddControllers();
         builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -86,10 +92,6 @@ internal static class HostingExtensions
             options.AddPolicy("allow_all",
                 policy => { policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod(); });
         });
-
-        // demo versions (never use in production)
-        builder.Services.AddTransient<IRedirectUriValidator, DemoRedirectValidator>();
-        builder.Services.AddTransient<ICorsPolicyService, DemoCorsPolicy>();
 
         return builder.Build();
     }
