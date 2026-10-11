@@ -17,7 +17,18 @@ dotnet add CarvedRock.AppHost/CarvedRock.AppHost.csproj reference CarvedRock.Api
 dotnet add CarvedRock.AppHost/CarvedRock.AppHost.csproj package CommunityToolkit.Aspire.Hosting.MailPit
 
 
-
+## Identity server secrets 
+how to set 
+```bash
+dotnet user-secrets set \
+  "Parameters:webapp-client-secret" \
+  "$(openssl rand -hex 32)" \
+  --project CarvedRock.AppHost
+```
+how to check secret 
+```bash 
+dotnet user-secrets list --project CarvedRock.AppHost
+```
 
 
 aspire add communitytoolkit-mcpinspector \

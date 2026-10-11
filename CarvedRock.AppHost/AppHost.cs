@@ -2,6 +2,10 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 
 
+var webAppClientSecret = builder.AddParameter(
+    "webapp-client-secret",
+    secret: true);
+
 var carvedrockdb = builder.AddPostgres("postgres")
                           .WithImageTag("18.3-alpine")
                           .AddDatabase("CarvedRock"); 
@@ -17,7 +21,8 @@ var api = builder.AddProject<Projects.CarvedRock_Api>("api")
 var mailpit = builder.AddMailPit("smtp");
 
 
-builder.AddProject<Projects.CarvedRock_WebApp>("webapp")
+
+var webapp = builder.AddProject<Projects.CarvedRock_WebApp>("webapp")
     .WithReference(api) 
     .WithReference(mailpit) 
     .WaitFor(mailpit) 
@@ -25,23 +30,36 @@ builder.AddProject<Projects.CarvedRock_WebApp>("webapp")
     // .WithHttpHealthCheck("/health"); 
 
 var mcp = builder.AddProject<Projects.CarvedRock_Mcp>("mcp");
-var auth = builder.AddProject<Projects.CarvedRock_Auth>("auth")
+
+
+
+var idsrv = builder.AddProject<Projects.Duende_IdentityServer_Demo>("idsrv")
     .WithEnvironment("McpServerUrl", mcp.GetEndpoint("https"))
+    .WithEnvironment("WebAppUrl", webapp.GetEndpoint("https"))
+    .WithEnvironment("WebAppClientSecret", webAppClientSecret)
     .WithHttpHealthCheck("/health");
 
-api.WithEnvironment("Auth__Authority", auth.GetEndpoint("https"))
-    .WaitFor(auth);
+
+
+
+api.WithEnvironment("Auth__Authority", idsrv.GetEndpoint("https"))
+    .WaitFor(idsrv);
+
+webapp
+    .WithEnvironment("Auth__Authority", idsrv.GetEndpoint("https"))
+    .WithEnvironment("Auth__ClientSecret", webAppClientSecret)
+    .WaitFor(idsrv);
 
 mcp
     .WithReference(api)
     .WithEnvironment(
         "Auth__Authority",
-        auth.GetEndpoint("https"))
+        idsrv.GetEndpoint("https"))
     .WithEnvironment(
         "McpServerUrl",
         mcp.GetEndpoint("https"))
     .WaitFor(api)
-    .WaitFor(auth)
+    .WaitFor(idsrv)
     .WithHttpHealthCheck("/health");
 
 
