@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
     <ProjectReference Include="..\CarvedRock.Data\CarvedRock.Data.csproj" />
@@ -16,12 +16,14 @@
     <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.10.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.23.0" />
+    <PackageReference Include="Microsoft.Agents.AI" Version="1.24.0" />
   </ItemGroup>
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>37384222-edb1-4212-be40-165fd19e41ec</UserSecretsId>
   </PropertyGroup>
 
 </Project>

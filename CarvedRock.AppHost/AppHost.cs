@@ -6,6 +6,11 @@ var webAppClientSecret = builder.AddParameter(
     "webapp-client-secret",
     secret: true);
 
+var openAiApiKey = builder.AddParameter("openai-api-key", secret: true); 
+
+
+
+
 var carvedrockdb = builder.AddPostgres("postgres")
                           .WithImageTag("18.3-alpine")
                           .AddDatabase("CarvedRock"); 
@@ -44,6 +49,7 @@ var idsrv = builder.AddProject<Projects.Duende_IdentityServer_Demo>("idsrv")
 
 
 api.WithEnvironment("Auth__Authority", idsrv.GetEndpoint("https"))
+    .WithEnvironment("OpenAI__ApiKey", openAiApiKey)
     .WaitFor(idsrv);
 
 webapp

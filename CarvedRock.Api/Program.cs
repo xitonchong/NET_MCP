@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication;
 
+using Microsoft.Extensions.AI; 
+using OpenAI; 
 
 using Microsoft.Extensions.Hosting; 
 using Microsoft.Extensions.Options;
@@ -54,6 +56,18 @@ builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = 
     if (context.ProblemDetails.Status == 500)
         context.ProblemDetails.Detail = "An error occurred in our API. Use the trace ID when contacting us.";
 });
+
+builder.Services.AddSingleton<IChatClient>(_ =>
+{
+    var apiKey = builder.Configuration["OpenAI:ApiKey"]
+        ?? throw new InvalidOperationException("OpenAI:ApiKey is not configured!"); 
+    var model = builder.Configuration["OpenAI:Model"]
+        ?? throw new InvalidOperationException("OpenAI:Model is not configured."); 
+
+    return new OpenAIClient(apiKey) 
+        .GetChatClient(model)
+        .AsIChatClient(); 
+}); 
 
 var app = builder.Build();
 app.MapDefaultEndpoints();
