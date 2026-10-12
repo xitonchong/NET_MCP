@@ -15,14 +15,14 @@ public partial class ProductController(
     NewProductValidator validator): ControllerBase
 {
     [HttpGet]
-    [AllowAnonymous]
+    [Authorize]
     public async Task<IEnumerable<Product>> Get(string category = "all")
     {
         return await productLogic.GetProductsForCategoryAsync(category); 
     }
 
     [HttpGet("{id:int}")]
-    [AllowAnonymous]
+    [Authorize]
     [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get(int id)
