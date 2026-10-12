@@ -39,6 +39,8 @@ public partial class ProductController(
 
     [HttpPost]
     [Authorize(Roles = "admin")]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     // [SwaggerOperation("Creates a single product")]
     [ProducesResponseType<ProductModel>(StatusCodes.Status201Created)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
@@ -56,7 +58,9 @@ public partial class ProductController(
     }
 
     [HttpPut("{id:int}")]
-    // [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin")]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     // [SwaggerOperation("Update a single product.")]
     // [ProducesReponseType<ProductModel>(StatusCodes.Status200OK)] 
     public async Task<IActionResult> UpdateProduct(int id, [FromBody] NewProductModel updatedProduct)
@@ -80,6 +84,9 @@ public partial class ProductController(
 
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "admin")]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteProduct(int id)

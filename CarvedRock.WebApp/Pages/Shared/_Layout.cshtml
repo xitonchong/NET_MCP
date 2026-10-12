@@ -27,6 +27,24 @@
                             <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
                         </li>
                     </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a class="nav-link" asp-page="/Listing" asp-route-cat="all">Shop</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-page="/Cart">Cart</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-page="/CurrentPromotion">Promotion</a></li>
+                        @if (User.IsInRole("admin"))
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-page="/Admin/Index">Admin</a></li>
+                        }
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item"><span class="nav-link">@User.Identity.Name</span></li>
+                            <li class="nav-item"><form method="post" asp-page="/Logout"><button class="btn btn-link nav-link">Sign out</button></form></li>
+                        }
+                        else
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-page="/Login">Sign in</a></li>
+                        }
+                    </ul>
                 </div>
             </div>
         </nav>

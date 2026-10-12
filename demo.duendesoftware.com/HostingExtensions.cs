@@ -15,7 +15,9 @@ internal static class HostingExtensions
             builder.Configuration["WebAppUrl"]
                 ?? throw new InvalidOperationException("WebAppUrl is missing."),
             builder.Configuration["WebAppClientSecret"]
-                ?? throw new InvalidOperationException("WebAppClientSecret is missing."));
+                ?? throw new InvalidOperationException("WebAppClientSecret is missing."),
+            builder.Configuration["ApiUrl"]
+                ?? throw new InvalidOperationException("ApiUrl is missing."));
 
         builder.Services.AddRazorPages();
         builder.Services.AddControllers();
@@ -56,7 +58,7 @@ internal static class HostingExtensions
             .AddInMemoryApiResources(Config.ApiResources)
             .AddInMemoryClients(Config.Clients)
             .AddTestUsers(TestUsers.Users)
-            .AddJwtBearerClientAuthentication();        
+            .AddJwtBearerClientAuthentication();
 
         //builder.Services.AddTransient<IResourceOwnerPasswordValidator, ResourceOwnerValidator>();
 
@@ -101,7 +103,7 @@ internal static class HostingExtensions
         if (!app.Environment.IsDevelopment())
         {
             app.UseHsts();
-        }       
+        }
         app.MapDefaultEndpoints();
 
         app.UseCookiePolicy();

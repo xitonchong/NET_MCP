@@ -13,13 +13,15 @@ public class AdminClaimsTransformation : IClaimsTransformation
             c.Type == ClaimTypes.Email || 
             c.Type == "email"); 
 
-        if (emailClaim != null &&
+        if (principal.Identity?.IsAuthenticated == true &&
+            !principal.IsInRole("admin") &&
+            emailClaim != null &&
             emailClaim.Value.Split('@')[0].Equals("bobsmith", StringComparison.OrdinalIgnoreCase))
         {
-            var clone = principal.Clone();
-            var newIdentity = (ClaimsIdentity)clone.Identity!;
+            var clone = new ClaimsPrincipal(principal.Identities.Select(identity => identity.Clone()));
+            var newIdentity = clone.Identities.First(identity => identity.IsAuthenticated);
             
-            newIdentity.AddClaim(new Claim(ClaimTypes.Role, "admin"));
+            newIdentity.AddClaim(new Claim(newIdentity.RoleClaimType, "admin"));
             
             return Task.FromResult(clone);
         }

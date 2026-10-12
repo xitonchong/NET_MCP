@@ -35,6 +35,7 @@ builder.Services
     })
     .AddJwtBearer(options =>
     {
+      options.SaveToken = true;
       options.Authority = authority;
       options.TokenValidationParameters = 
         new TokenValidationParameters
@@ -67,6 +68,8 @@ builder.Services
     }); 
 
 builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<ApiAccessTokenHandler>();
 
 builder.Services.AddMcpServer()
     .WithHttpTransport()
@@ -76,7 +79,7 @@ builder.Services.AddMcpServer()
 builder.Services.AddHttpClient("CarvedRockApi", client =>
 {
     client.BaseAddress = new Uri("https://api");
-}).AddServiceDiscovery();
+}).AddHttpMessageHandler<ApiAccessTokenHandler>();
 
 var app = builder.Build();
 

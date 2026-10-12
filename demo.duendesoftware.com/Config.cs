@@ -7,15 +7,18 @@ namespace Duende.IdentityServer.Demo
         private static string _mcpServerUrl = null!;
         private static string _webAppUrl = null!;
         private static string _webAppClientSecret = null!;
+        private static string _apiUrl = null!;
 
         public static void Configure(
             string mcpServerUrl,
             string webAppUrl,
-            string webAppClientSecret)
+            string webAppClientSecret,
+            string apiUrl)
         {
             if (!Uri.TryCreate(mcpServerUrl, UriKind.Absolute, out _) ||
                 !Uri.TryCreate(webAppUrl, UriKind.Absolute, out _) ||
-                string.IsNullOrWhiteSpace(webAppClientSecret))
+                string.IsNullOrWhiteSpace(webAppClientSecret) ||
+                !Uri.TryCreate(apiUrl, UriKind.Absolute, out _))
             {
                 throw new ArgumentException("Valid MCP and WebApp URLs and a WebApp client secret are required.");
             }
@@ -23,6 +26,7 @@ namespace Duende.IdentityServer.Demo
             _mcpServerUrl = mcpServerUrl.TrimEnd('/') + "/";
             _webAppUrl = webAppUrl.TrimEnd('/');
             _webAppClientSecret = webAppClientSecret;
+            _apiUrl = apiUrl.TrimEnd('/');
         }
         private static List<string> AllIdentityScopes =>
             IdentityResources.Select(s => s.Name).ToList();
@@ -32,7 +36,7 @@ namespace Duende.IdentityServer.Demo
 
         private static List<string> AllScopes =>
             AllApiScopes.Concat(AllIdentityScopes).ToList();
-        
+
         public static IEnumerable<IdentityResource> IdentityResources =>
             new List<IdentityResource>
             {
@@ -46,21 +50,21 @@ namespace Duende.IdentityServer.Demo
             {
                 // backward compat
                 new ApiScope("api"),
-                
+
                 // resource specific scopes
                 new ApiScope("resource1.scope1"),
                 new ApiScope("resource1.scope2"),
-                
+
                 new ApiScope("resource2.scope1"),
                 new ApiScope("resource2.scope2"),
-                
+
                 new ApiScope("resource3.scope1"),
                 new ApiScope("resource3.scope2"),
-                
+
                 // a scope without resource association
                 new ApiScope("scope3"),
                 new ApiScope("scope4"),
-                
+
                 // a scope shared by multiple resources
                 new ApiScope("shared.scope"),
 
@@ -77,7 +81,7 @@ namespace Duende.IdentityServer.Demo
                 new ApiResource("api", "Demo API", new[] { "name", "email" })
                 {
                     ApiSecrets = { new Secret("secret".Sha256()) },
-                    
+
                     Scopes = { "api" }
                 },
 
@@ -92,19 +96,19 @@ namespace Duende.IdentityServer.Demo
 
                     Scopes = { "resource1.scope1", "resource1.scope2", "shared.scope" }
                 },
-                
+
                 new ApiResource("urn:resource2", "Resource 2")
                 {
                     ApiSecrets = { new Secret("secret".Sha256()) },
 
                     Scopes = { "resource2.scope1", "resource2.scope2", "shared.scope" }
                 },
-                
+
                 new ApiResource("urn:resource3", "Resource 3 (isolated)")
                 {
                     ApiSecrets = { new Secret("secret".Sha256()) },
                     RequireResourceIndicator = true,
-                    
+
                     Scopes = { "resource3.scope1", "resource3.scope2", "shared.scope" }
                 }
             };
@@ -112,7 +116,7 @@ namespace Duende.IdentityServer.Demo
         private static Secret PublicKey = new Secret
         {
             Type = IdentityServerConstants.SecretTypes.JsonWebKey,
-            Value = 
+            Value =
                 """
                 {
                     "e":"AQAB",
@@ -142,7 +146,7 @@ namespace Duende.IdentityServer.Demo
                     ClientName = "Machine to machine (client credentials with JWT)",
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
                     AllowedScopes = AllApiScopes,
-                    
+
                     ClientSecrets = { PublicKey }
                 },
                 new Client
@@ -164,7 +168,7 @@ namespace Duende.IdentityServer.Demo
 
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
                     AllowedScopes = AllApiScopes,
-                    
+
                     RequireDPoP = true,
                     DPoPValidationMode = DPoPTokenExpirationValidationMode.Nonce,
                 },
@@ -185,7 +189,7 @@ namespace Duende.IdentityServer.Demo
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
                     AllowedScopes = AllApiScopes,
                     AccessTokenLifetime = 75,
-                    
+
                     ClientSecrets = { PublicKey }
                 },
 
@@ -201,9 +205,10 @@ namespace Duende.IdentityServer.Demo
                     RedirectUris =
                     {
                         "http://localhost:6274/oauth/callback",
-                        "http://localhost:6274/oauth/callback/debug"
+                        "http://localhost:6274/oauth/callback/debug",
+                        $"{_apiUrl}/swagger/oauth2-redirect.html"
                     },
-                    AllowedCorsOrigins = { "http://localhost:6274" },
+                    AllowedCorsOrigins = { "http://localhost:6274", _apiUrl },
                     AllowedScopes = { "openid", "profile", "email", "api" },
                     AllowOfflineAccess = true
                 },
@@ -260,7 +265,7 @@ namespace Duende.IdentityServer.Demo
                     RefreshTokenUsage = TokenUsage.ReUse,
                     RefreshTokenExpiration = TokenExpiration.Sliding
                 },
-                
+
                 new Client
                 {
                     ClientId = "interactive.confidential.short",
@@ -279,7 +284,7 @@ namespace Duende.IdentityServer.Demo
                     AllowOfflineAccess = true,
                     RefreshTokenUsage = TokenUsage.ReUse,
                     RefreshTokenExpiration = TokenExpiration.Sliding,
-                    
+
                     AccessTokenLifetime = 75
                 },
 
@@ -321,7 +326,7 @@ namespace Duende.IdentityServer.Demo
                     AllowOfflineAccess = true,
                     RefreshTokenUsage = TokenUsage.ReUse,
                     RefreshTokenExpiration = TokenExpiration.Sliding,
-                    
+
                     AccessTokenLifetime = 75
                 },
 
@@ -362,7 +367,7 @@ namespace Duende.IdentityServer.Demo
                     AllowOfflineAccess = true,
                     RefreshTokenUsage = TokenUsage.OneTimeOnly,
                     RefreshTokenExpiration = TokenExpiration.Sliding,
-                    
+
                     AccessTokenLifetime = 75
                 },
 
@@ -417,10 +422,10 @@ namespace Duende.IdentityServer.Demo
                     AllowOfflineAccess = true,
                     RefreshTokenUsage = TokenUsage.OneTimeOnly,
                     RefreshTokenExpiration = TokenExpiration.Sliding,
-                    
+
                     AllowedScopes = AllScopes,
                 },
-                
+
                 // oidc login only
                 new Client
                 {
@@ -438,10 +443,10 @@ namespace Duende.IdentityServer.Demo
                 new Client
                 {
                     ClientId = "login",
-                    
+
                     RedirectUris = { "https://notused" },
                     PostLogoutRedirectUris = { "https://notused" },
-                    
+
                     AllowedGrantTypes = GrantTypes.Implicit,
                     AllowedScopes = AllIdentityScopes,
                 }

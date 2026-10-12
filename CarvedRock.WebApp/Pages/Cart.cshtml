@@ -1,0 +1,21 @@
+@page
+@model CarvedRock.WebApp.Pages.CartModel
+<h1>Shopping cart</h1>
+@if (Model.Items.Count == 0) { <p>Your cart is empty.</p> }
+else
+{
+    <table class="table">
+        <thead><tr><th>Product</th><th>Quantity</th><th>Total</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr><td>@item.Name</td><td>@item.Quantity</td><td>@item.Total.ToString("N2")</td>
+                <td><form method="post" asp-page-handler="Remove"><input type="hidden" name="id" value="@item.Id" /><button class="btn btn-outline-danger">Remove</button></form></td></tr>
+        }
+        </tbody>
+    </table>
+    <p>Total: @Model.Items.Sum(i => i.Total).ToString("N2")</p>
+    <a class="btn btn-primary" asp-page="/Checkout">Checkout</a>
+    <form method="post" asp-page-handler="CancelOrder" class="mt-2"><button class="btn btn-outline-secondary">Cancel order</button></form>
+}
+<a asp-page="/Index">Continue shopping</a>

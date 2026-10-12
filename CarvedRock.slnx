@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/tests/">
+    <Project Path="tests/CarvedRock.AuthorizationChecks/CarvedRock.AuthorizationChecks.csproj" />
+  </Folder>
   <Project Path="CarvedRock.Auth/CarvedRock.Auth.csproj" />
   <Folder Name="/demo.duendesoftware.com/">
     <Project Path="demo.duendesoftware.com/Duende.IdentityServer.Demo.csproj" />

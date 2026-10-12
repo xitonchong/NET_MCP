@@ -1,0 +1,10 @@
+@page
+@model CarvedRock.WebApp.Pages.CheckoutModel
+<h1>Checkout</h1>
+<div asp-validation-summary="All" class="text-danger"></div>
+<p>Confirmation will be sent to @Model.EmailAddress.</p>
+<ul>@foreach (var item in Model.Items) { <li>@item.Name × @item.Quantity: @item.Total.ToString("N2")</li> }</ul>
+<p>Total: @Model.Items.Sum(i => i.Total).ToString("N2")</p>
+<p>This tutorial checkout sends an email confirmation; no payment is collected.</p>
+<form method="post" asp-page-handler="SubmitOrder"><button class="btn btn-primary">Submit order</button></form>
+<a asp-page="/Cart">Back to cart</a>

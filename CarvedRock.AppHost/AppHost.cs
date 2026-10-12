@@ -14,8 +14,8 @@ var carvedrockdb = builder.AddPostgres("postgres")
 
 var api = builder.AddProject<Projects.CarvedRock_Api>("api") 
     .WithReference(carvedrockdb) 
-    .WaitFor(carvedrockdb); 
-    // .WithHttpHealthCheck("/health"); 
+    .WaitFor(carvedrockdb)
+    .WithHttpHealthCheck("/health");
 
 
 var mailpit = builder.AddMailPit("smtp");
@@ -26,8 +26,8 @@ var webapp = builder.AddProject<Projects.CarvedRock_WebApp>("webapp")
     .WithReference(api) 
     .WithReference(mailpit) 
     .WaitFor(mailpit) 
-    .WaitFor(api);
-    // .WithHttpHealthCheck("/health"); 
+    .WaitFor(api)
+    .WithHttpHealthCheck("/health");
 
 var mcp = builder.AddProject<Projects.CarvedRock_Mcp>("mcp");
 
@@ -36,6 +36,7 @@ var mcp = builder.AddProject<Projects.CarvedRock_Mcp>("mcp");
 var idsrv = builder.AddProject<Projects.Duende_IdentityServer_Demo>("idsrv")
     .WithEnvironment("McpServerUrl", mcp.GetEndpoint("https"))
     .WithEnvironment("WebAppUrl", webapp.GetEndpoint("https"))
+    .WithEnvironment("ApiUrl", api.GetEndpoint("https"))
     .WithEnvironment("WebAppClientSecret", webAppClientSecret)
     .WithHttpHealthCheck("/health");
 

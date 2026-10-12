@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Authentication;
 
 
 using Microsoft.Extensions.Hosting; 
+using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args); 
 builder.AddServiceDefaults(); 
@@ -45,8 +47,20 @@ builder.Services.AddScoped<ICarvedRockRepository, CarvedRockRepository>();
 builder.Services.AddControllers(); 
 builder.Services.AddEndpointsApiExplorer(); 
 builder.Services.AddSwaggerGen(); 
+builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerOptions>();
+builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
+{
+    context.ProblemDetails.Extensions["traceId"] = Activity.Current?.Id ?? context.HttpContext.TraceIdentifier;
+    if (context.ProblemDetails.Status == 500)
+        context.ProblemDetails.Detail = "An error occurred in our API. Use the trace ID when contacting us.";
+});
 
 var app = builder.Build();
+app.MapDefaultEndpoints();
+app.UseExceptionHandler();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseMiddleware<UserScopeMiddleware>();
 
 using (var scope = app.Services.CreateScope())
 {
@@ -58,7 +72,12 @@ app.MapControllers();
 
 
 app.UseSwagger(); 
-app.UseSwaggerUI(); 
+app.UseSwaggerUI(options =>
+{
+    options.OAuthClientId("interactive.public");
+    options.OAuthAppName("CarvedRock API");
+    options.OAuthUsePkce();
+});
 
 
 

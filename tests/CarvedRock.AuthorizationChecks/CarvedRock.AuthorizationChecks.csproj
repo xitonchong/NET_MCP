@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../CarvedRock.Api/CarvedRock.Api.csproj" />
+    <ProjectReference Include="../../CarvedRock.WebApp/CarvedRock.WebApp.csproj" />
+    <ProjectReference Include="../../CarvedRock.Mcp/CarvedRock.Mcp.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,12 @@
+@page
+@model CarvedRock.WebApp.Pages.ListingModel
+<h1>Products: @Model.CategoryName</h1>
+@foreach (var product in Model.Products)
+{
+    <article class="border rounded p-3 mb-3">
+        <h2>@product.Name</h2><p>@product.Description</p><p>@product.Price.ToString("N2")</p>
+        <form method="post" asp-page="/Cart" asp-page-handler="Add">
+            <input type="hidden" name="id" value="@product.Id" /><button class="btn btn-primary">Add to cart</button>
+        </form>
+    </article>
+}

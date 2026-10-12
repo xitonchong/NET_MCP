@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Http.Resilience;
 
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
@@ -25,6 +26,12 @@ public static class Extensions
         builder.AddDefaultHealthChecks(); 
 
         builder.Services.AddServiceDiscovery();
+        builder.Services.ConfigureHttpClientDefaults(http =>
+        {
+            // Retry safe reads, but never replay product writes automatically.
+            http.AddStandardResilienceHandler(options => options.Retry.DisableForUnsafeHttpMethods());
+            http.AddServiceDiscovery();
+        });
 
         return builder;
     }
