@@ -1,7 +1,5 @@
-using System.IdentityModel.Tokens.Jwt; 
-using Microsoft.IdentityModel.Tokens; 
-using CarvedRock.WebApp;
-
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +7,30 @@ builder.AddServiceDefaults();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = 
+        CookieAuthenticationDefaults.AuthenticationScheme; 
+    options.DefaultChallengeScheme = 
+        OpenIdConnectDefaults.AuthenticationScheme; 
+})
+.AddCookie()
+.AddOpenIdConnect(options =>
+{
+    options.Authority = builder.Configuration["Auth:Authority"]; 
+    options.ClientId = "interactive.confidential";
+    options.ClientSecret = builder.Configuration["Auth:ClientSecret"];
+
+    options.ResponseType = "code";
+    options.UsePkce = true;
+    options.SaveTokens = true;
+
+    options.Scope.Add("email");
+    options.Scope.Add("api");
+}); 
+
 
 var app = builder.Build();
 
@@ -23,11 +45,12 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseRouting();
-
+app.UseAuthentication(); 
 app.UseAuthorization();
 
 app.MapStaticAssets();
 app.MapRazorPages()
-   .WithStaticAssets();
+    .RequireAuthorization()
+    .WithStaticAssets();
 app.Run();
 
