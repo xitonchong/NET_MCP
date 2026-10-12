@@ -8,6 +8,11 @@ builder.AddServiceDefaults();
 // Add services to the container.
 builder.Services.AddRazorPages();
 
+builder.Services.AddHttpClient("CarvedRockApi", client =>
+{
+    client.BaseAddress = new Uri("https://api");
+}).AddServiceDiscovery();
+
 
 builder.Services.AddAuthentication(options =>
 {
