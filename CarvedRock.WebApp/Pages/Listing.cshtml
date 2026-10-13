@@ -10,3 +10,88 @@
         </form>
     </article>
 }
+
+<section class="card mt-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Product recommendation assistant</h2>
+    </div>
+
+    <div class="card-body">
+        <div class="input-group">
+            <input
+                id="chat-message"
+                class="form-control"
+                placeholder="What equipment do you need?" />
+
+            <button
+                id="chat-send"
+                class="btn btn-primary"
+                type="button">
+                Send
+            </button>
+        </div>
+
+        <div
+            id="chat-response"
+            class="border rounded p-3 mt-3"
+            style="min-height: 100px; white-space: pre-wrap;">
+        </div>
+    </div>
+</section>
+
+<script>
+    let chatSource = null;
+
+    document
+        .getElementById("chat-send")
+        .addEventListener("click", startChat);
+
+    document
+        .getElementById("chat-message")
+        .addEventListener("keydown", event => {
+            if (event.key === "Enter") {
+                startChat();
+            }
+        });
+
+    function startChat() {
+        const input = document.getElementById("chat-message");
+        const output = document.getElementById("chat-response");
+        const message = input.value.trim();
+
+        if (!message) {
+            return;
+        }
+
+        if (chatSource) {
+            chatSource.close();
+        }
+
+        output.textContent = "";
+        input.value = "";
+
+        const url =
+            `/Listing?handler=Chat&message=${encodeURIComponent(message)}`;
+
+        chatSource = new EventSource(url);
+
+        chatSource.onmessage = event => {
+            output.textContent += JSON.parse(event.data);
+        };
+
+        chatSource.addEventListener("end", () => {
+            chatSource.close();
+            chatSource = null;
+        });
+
+        chatSource.onerror = () => {
+            if (output.textContent.length === 0) {
+                output.textContent =
+                    "The recommendation assistant could not respond.";
+            }
+
+            chatSource.close();
+            chatSource = null;
+        };
+    }
+</script>

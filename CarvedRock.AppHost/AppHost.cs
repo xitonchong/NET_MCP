@@ -50,6 +50,7 @@ var idsrv = builder.AddProject<Projects.Duende_IdentityServer_Demo>("idsrv")
 
 api.WithEnvironment("Auth__Authority", idsrv.GetEndpoint("https"))
     .WithEnvironment("OpenAI__ApiKey", openAiApiKey)
+    .WithEnvironment("McpServerUrl", mcp.GetEndpoint("https"))
     .WaitFor(idsrv);
 
 webapp

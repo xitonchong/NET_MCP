@@ -14,6 +14,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IClaimsTransformation, AdminClaimsTransformation>();
 builder.Services.AddHttpClient<IProductService, ProductService>(client => client.BaseAddress = new Uri("https://api"));
+builder.Services.AddHttpClient("AI", client => client.BaseAddress = new Uri("https://api"));
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
