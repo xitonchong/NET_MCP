@@ -1,5 +1,6 @@
 @page
 @model CarvedRock.WebApp.Pages.ListingModel
+
 <h1>Products: @Model.CategoryName</h1>
 @foreach (var product in Model.Products)
 {
@@ -11,87 +12,38 @@
     </article>
 }
 
-<section class="card mt-4">
-    <div class="card-header">
-        <h2 class="h5 mb-0">Product recommendation assistant</h2>
+<section class="card mt-4"><div class="card-header"><h2 class="h5 mb-0">Product recommendation assistant</h2></div>
+<div class="card-body">
+    <div id="chat-messages" class="border rounded p-3 mb-3" style="min-height:150px;max-height:400px;overflow-y:auto;">
+        @foreach (var turn in Model.ChatHistory)
+        {
+            var messageClass = turn.Role == "user" ? "alert-primary" : "alert-secondary";
+            var speaker = turn.Role == "user" ? "You" : "Assistant";
+            <div class="alert @messageClass mb-2"><strong>@speaker</strong><div style="white-space:pre-wrap;">@turn.Content</div></div>
+        }
     </div>
-
-    <div class="card-body">
-        <div class="input-group">
-            <input
-                id="chat-message"
-                class="form-control"
-                placeholder="What equipment do you need?" />
-
-            <button
-                id="chat-send"
-                class="btn btn-primary"
-                type="button">
-                Send
-            </button>
-        </div>
-
-        <div
-            id="chat-response"
-            class="border rounded p-3 mt-3"
-            style="min-height: 100px; white-space: pre-wrap;">
-        </div>
-    </div>
-</section>
+    <div class="input-group"><input id="chat-message" class="form-control" placeholder="What equipment do you need?" />
+        <button id="chat-send" class="btn btn-primary" type="button">Send</button></div>
+</div></section>
 
 <script>
-    let chatSource = null;
-
-    document
-        .getElementById("chat-send")
-        .addEventListener("click", startChat);
-
-    document
-        .getElementById("chat-message")
-        .addEventListener("keydown", event => {
-            if (event.key === "Enter") {
-                startChat();
-            }
-        });
-
-    function startChat() {
-        const input = document.getElementById("chat-message");
-        const output = document.getElementById("chat-response");
-        const message = input.value.trim();
-
-        if (!message) {
-            return;
-        }
-
-        if (chatSource) {
-            chatSource.close();
-        }
-
-        output.textContent = "";
-        input.value = "";
-
-        const url =
-            `/Listing?handler=Chat&message=${encodeURIComponent(message)}`;
-
-        chatSource = new EventSource(url);
-
-        chatSource.onmessage = event => {
-            output.textContent += JSON.parse(event.data);
-        };
-
-        chatSource.addEventListener("end", () => {
-            chatSource.close();
-            chatSource = null;
-        });
-
-        chatSource.onerror = () => {
-            if (output.textContent.length === 0) {
-                output.textContent =
-                    "The recommendation assistant could not respond.";
-            }
-
-            chatSource.close();
-            chatSource = null;
-        };
-    }
+let chatSource = null;
+document.getElementById("chat-send").addEventListener("click", startChat);
+document.getElementById("chat-message").addEventListener("keydown", event => { if (event.key === "Enter") startChat(); });
+function appendMessage(role, text) {
+    const container = document.getElementById("chat-messages");
+    const wrapper = document.createElement("div"), title = document.createElement("strong"), content = document.createElement("div");
+    wrapper.className = role === "user" ? "alert alert-primary mb-2" : "alert alert-secondary mb-2";
+    title.textContent = role === "user" ? "You" : "Assistant"; content.style.whiteSpace = "pre-wrap"; content.textContent = text;
+    wrapper.append(title, content); container.appendChild(wrapper); container.scrollTop = container.scrollHeight; return content;
+}
+function startChat() {
+    const input = document.getElementById("chat-message"), message = input.value.trim(); if (!message) return;
+    if (chatSource) chatSource.close();
+    appendMessage("user", message); const assistantMessage = appendMessage("assistant", ""); input.value = "";
+    chatSource = new EventSource(`/Listing?handler=Chat&message=${encodeURIComponent(message)}`);
+    chatSource.onmessage = event => { assistantMessage.textContent += JSON.parse(event.data); };
+    chatSource.addEventListener("end", () => { if (!assistantMessage.textContent) assistantMessage.textContent = "No response was returned."; chatSource.close(); chatSource = null; });
+    chatSource.onerror = () => { if (!assistantMessage.textContent) assistantMessage.textContent = "The recommendation assistant could not respond."; chatSource.close(); chatSource = null; };
+}
 </script>

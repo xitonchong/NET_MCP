@@ -30,6 +30,14 @@ how to check secret
 dotnet user-secrets list --project CarvedRock.AppHost
 ```
 
+```bash
+dotnet user-secrets set \
+  "Parameters:openai-api-key" \
+  "YOUR_OPENAI_API_KEY" \
+  --project CarvedRock.AppHost/CarvedRock.AppHost.csproj
+
+```
+
 
 aspire add communitytoolkit-mcpinspector \
   --apphost CarvedRock.AppHost/CarvedRock.AppHost.csproj \
