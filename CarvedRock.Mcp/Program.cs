@@ -4,6 +4,8 @@ using ModelContextProtocol.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Tokens; 
 using System.Security.Claims;
 using ModelContextProtocol.Authentication; 
+using CarvedRock.Core;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,13 +70,17 @@ builder.Services
     }); 
 
 builder.Services.AddAuthorization();
+builder.Services.AddTransient<IClaimsTransformation, AdminClaimsTransformation>();
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<ApiAccessTokenHandler>();
 
 builder.Services.AddMcpServer()
     .WithHttpTransport()
     .WithTools<CarvedRockTools>()
-    .WithTools<AdminTools>();
+    .WithTools<AdminTools>()
+    .WithPromptsFromAssembly()
+    .AddAuthorizationFilters();
 
 builder.Services.AddHttpClient("CarvedRockApi", client =>
 {
@@ -93,6 +99,9 @@ if (app.Environment.IsDevelopment())
 }
 app.UseAuthentication();
 app.UseAuthorization();
+
+
+app.UseMiddleware<UserScopeMiddleware>();
 
 app.MapMcp()
     .RequireAuthorization();

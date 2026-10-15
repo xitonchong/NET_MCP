@@ -1,8 +1,11 @@
 using ModelContextProtocol.Server;
 using System.ComponentModel;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace CarvedRock.Mcp;
 
+[Authorize(Roles = "admin")]
 [McpServerToolType]
 public class AdminTools(IHttpClientFactory httpClientFactory)
 {
